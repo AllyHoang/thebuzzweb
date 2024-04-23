@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: App.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: App.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Main component of the application
+ * @module App
+ * @category Components
+ * @author Jeffery Desir
+ * @version 1.0.0
+ * @see {@link DiscussionForm}
+ * @see {@link DiscussionDeleteButton}
+ * @see {@link LikeButton}
+ */
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./App.css";
+import DiscussionForm from "./components/DiscussionForm";
+import DiscussionDeleteButton from "./components/DiscussionDeleteButton";
+import LikeButton from "./components/LikeButton"; // Importing the LikeButton component
+
+/**
+ * Main component of the application
+ * @returns {JSX.Element} The main application component
+ */
+function App() {
+  // State variables
+  const [isLoading, setLoading] = useState(true);
+  const [discussions, setDiscussions] = useState([]);
+  const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+
+  // Base URL for API endpoint
+  const baseurl = "https://team-dawgs.dokku.cse.lehigh.edu";
+
+  // Fetch discussions data when the component mounts
+  useEffect(() => {
+    axios
+      .get(`${baseurl}/discussions`)
+      .then((response) => {
+        if (response.data.mStatus === "ok") {
+          setDiscussions(response.data.mData);
+        } else {
+          setError("Failed to fetch discussions");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching discussions:", error);
+        setError("Failed to fetch discussions");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  // Function to handle successful submission of discussion form
+  const handleSuccess = (newDiscussion) => {
+    setDiscussions([...discussions, newDiscussion]);
+    setError(null);
+    setShowForm(false);
+  };
+
+  // Function to handle errors during form submission
+  const handleError = (errorMessage) => {
+    setError(errorMessage);
+  };
+
+  // Function to handle successful deletion of discussion
+  const handleDeleteSuccess = () => {
+    // Update discussions list after deletion
+    // For example: Fetch discussions again or filter out the deleted discussion
+    console.log("Discussion deleted successfully");
+  };
+
+  // Function to handle errors during deletion of discussion
+  const handleDeleteError = (errorMessage) => {
+    // Handle deletion error
+    console.error("Error deleting discussion:", errorMessage);
+    setError(errorMessage);
+  };
+
+  // Render loading message while fetching data
+  if (isLoading) {
+    return (
+      &lt;div className="App">
+        &lt;h1 className="app-title">The Buzz&lt;/h1>
+        &lt;p className="app-subtitle">Share ideas here!&lt;/p>
+        &lt;div>Loading...&lt;/div>
+      &lt;/div>
+    );
+  }
+
+  // Render the main content once data is loaded
+  return (
+    &lt;div className="App">
+      &lt;header className="App-header">
+        &lt;h1 className="app-title">The Buzz&lt;/h1>
+        &lt;p className="app-subtitle">Share ideas here!&lt;/p>
+        {!showForm &amp;&amp; (
+          &lt;button
+            className="start-discussion-btn"
+            onClick={() => setShowForm(true)}
+          >
+            Start New Discussion
+          &lt;/button>
+        )}
+        {showForm &amp;&amp; (
+          &lt;DiscussionForm onSuccess={handleSuccess} onError={handleError} />
+        )}
+        {error &amp;&amp; &lt;div style={{ color: "red" }}>{error}&lt;/div>}
+        {/* Render discussions */}
+        {discussions.map((discussion, index) => (
+          &lt;div className="item discussion-item" key={index}>
+            &lt;div>
+              &lt;b>Title: &lt;/b>
+              {discussion.mTitle}
+            &lt;/div>
+            &lt;div>
+              &lt;b>Idea: &lt;/b>
+              {discussion.mContent}
+            &lt;/div>
+            {/* Render DiscussionDeleteButton component */}
+            &lt;DiscussionDeleteButton
+              discussionId={discussion.mId}
+              onDelete={handleDeleteSuccess}
+              onError={handleDeleteError}
+            />
+            {/* Render LikeButton component */}
+            &lt;LikeButton discussionId={discussion.mId} />
+          &lt;/div>
+        ))}
+      &lt;/header>
+    &lt;/div>
+  );
+}
+
+// Export the App component as default
+export default App;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-DiscussionDeleteButton.html">DiscussionDeleteButton</a></li><li><a href="module-DiscussionForm.html">DiscussionForm</a></li><li><a href="module-LikeButton.html">LikeButton</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Mon Mar 25 2024 15:54:47 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
